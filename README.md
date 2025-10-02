@@ -6,12 +6,16 @@ ex: python -m venv meu_ambiente_robo
 Ativa o ambiente virtual:
 ex:
 windows:meu_ambiente_robo\Scripts\activate
+
 linux: source/meu_ambiente_robo/bin/activate
 
 Instala as bibliotecas necessárias:
 pip install numpy 
+
 pip install pyvista
+
 pip install roboticstoolbox-python
+
 pip install matplotlib
 
 
