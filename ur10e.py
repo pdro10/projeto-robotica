@@ -1,7 +1,12 @@
+import matplotlib
+matplotlib.use('TkAgg')
+
 import numpy as np
 import matplotlib.pyplot as plt
 from spatialmath import SE3
 from roboticstoolbox import DHRobot, RevoluteDH
+import pyvista as pv
+import os
 
 # Definição do Robô
 ur10e = DHRobot([
