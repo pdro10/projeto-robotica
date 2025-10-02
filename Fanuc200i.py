@@ -87,15 +87,12 @@ print("\n--- Gerando visualização 3D com modelo do robô (PyVista)... ---")
 
 mesh_folder = "visual"  # Assumindo que os arquivos STL estão na mesma pasta 'visual'
 
-# A quantidade de links deve corresponder aos seus arquivos (aqui, 6 links).
 stl_files = [
     "fanuc_link_1.stl", "fanuc_link_2.stl", "fanuc_link_3.stl",
     "fanuc_link_4.stl", "fanuc_link_5.stl", "fanuc_link_6.stl"
 ]
 
-# ATENÇÃO: Estes offsets são placeholders. Você PRECISARÁ ajustá-los
-# para alinhar corretamente cada parte do seu modelo 3D Fanuc.
-# O valor correto depende de como os arquivos STL foram modelados.
+
 offsets_m = [
     [0.0, 0.0, 0.0],
     [0.0, 0.0, 0.0],

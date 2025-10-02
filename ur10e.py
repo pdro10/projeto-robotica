@@ -82,17 +82,10 @@ ax.legend(); ax.set_title("Trajetória do Robô UR10e")
 plt.show()
 
 # --- SESSÃO DO PYVISTA PARA VISUALIZAÇÃO 3D COM O MODELO DO ROBÔ ---
-# Este bloco só será executado após você fechar a janela do gráfico do Matplotlib.
-
-import pyvista as pv
-import os
-
 print("\n--- Gerando visualização 3D com modelo do robô (PyVista)... ---")
 
 mesh_folder = "visual"
 
-# ATENÇÃO: Verifique e ajuste os nomes dos arquivos STL para o seu modelo UR10e.
-# Estes são nomes comuns, mas os seus podem ser diferentes. (Base + 6 links)
 stl_files = [
     "ur10e_base.stl",
     "ur10e_shoulder.stl",
@@ -103,8 +96,6 @@ stl_files = [
     "ur10e_wrist3.stl"
 ]
 
-# ATENÇÃO: Estes offsets são placeholders. Você PRECISARÁ ajustá-los
-# para alinhar corretamente cada parte do seu modelo 3D UR10e.
 offsets_m = [
     [0.0, 0.0, 0.0],
     [0.0, 0.0, 0.0],
@@ -119,7 +110,6 @@ plotter = pv.Plotter(off_screen=True)
 
 # Verifica se a pasta "visual" existe
 if os.path.isdir(mesh_folder):
-    # Carrega as malhas do robô
     for stl_file, offset in zip(stl_files, offsets_m):
         path = os.path.join(mesh_folder, stl_file)
         if not os.path.isfile(path):
@@ -129,23 +119,21 @@ if os.path.isdir(mesh_folder):
         mesh = pv.read(path)
         mesh.points *= 0.001  # Converte de mm (do STL) para metros
         mesh.translate(offset, inplace=True)
-        # Cor cinza claro para o UR10e
         plotter.add_mesh(mesh, color="lightgrey", opacity=1.0)
 else:
     print(f"AVISO: Pasta '{mesh_folder}' não encontrada. O modelo 3D do robô não será exibido.")
 
-# Trajetória desejada (azul, linha tracejada) - convertendo de cm para metros
+# Trajetória desejada (azul)- convertendo de cm para metros
 traj_desejada_m = np.array(trajetoria_cm) / 100.0
 lines_desejada = pv.lines_from_points(traj_desejada_m)
 plotter.add_mesh(lines_desejada, color='blue', line_width=3, style='wireframe', label='Desejada')
 
-# Trajetória calculada (vermelha, linha sólida) - convertendo de mm para metros
+# Trajetória calculada- convertendo de mm para metros
 traj_calculada_m = np.array([p for p in pontos_fk_mm if p is not None]) / 1000.0
 if traj_calculada_m.size > 0:
     lines_calculada = pv.lines_from_points(traj_calculada_m)
     plotter.add_mesh(lines_calculada, color='red', line_width=5, label='Calculada')
 
-# Configurações de visualização
 plotter.camera_position = 'iso'
 plotter.add_axes(interactive=False, line_width=2, color='black')
 plotter.show_grid(
@@ -157,7 +145,6 @@ plotter.show_grid(
 )
 plotter.add_legend()
 
-# Salva imagem final com nome apropriado
 output_filename = 'ur10e_trajetoria_desejada_calculada.png'
 plotter.show(screenshot=output_filename)
 print(f"----------------------------------------------------------\n")
