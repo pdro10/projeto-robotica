@@ -83,3 +83,73 @@ ax.legend(); ax.set_title("Trajetória do Robô")
 
 # Usando plt.show() para abrir a janela
 plt.show()
+
+# --- SESSÃO DO PYVISTA PARA VISUALIZAÇÃO 3D COM O MODELO DO ROBÔ ---
+# Este bloco só será executado após você fechar a janela do gráfico do Matplotlib.
+
+print("\n--- Gerando visualização 3D com modelo do robô (PyVista)... ---")
+
+mesh_folder = "visual"
+stl_files = [
+    "base_link.stl", "link_1.stl", "link_2.stl",
+    "link_3.stl", "link_4.stl", "link_5.stl", "link_6.stl"
+]
+
+# Offsets para corrigir a posição de cada malha (em metros)
+offsets_m = [
+    [0.0,    0.0,    0.0],
+    [0.0,    0.0,    0.0],
+    [-0.0007, 0.0,   -0.00352],
+    [-0.0007, 0.00065, -0.00712],
+    [-0.00309, 0.0,  -0.00712],
+    [-0.0045,  0.0,  -0.00712],
+    [-0.00515, 0.0,  -0.00712]
+]
+
+plotter = pv.Plotter(off_screen=True) # off_screen=True para salvar sem abrir janela
+
+# Verifica se a pasta "visual" existe
+if os.path.isdir(mesh_folder):
+    # Carrega e posiciona a malha do robô
+    for stl_file, offset in zip(stl_files, offsets_m):
+        path = os.path.join(mesh_folder, stl_file)
+        if not os.path.isfile(path):
+            print(f"AVISO: Arquivo de malha não encontrado: {path}")
+            continue
+
+        mesh = pv.read(path)
+        mesh.points *= 0.001  # mm (do STL) -> m
+        mesh.translate(offset, inplace=True)
+        plotter.add_mesh(mesh, color="orange", opacity=1.0)
+else:
+    print(f"AVISO: Pasta '{mesh_folder}' não encontrada. O modelo 3D do robô não será exibido.")
+
+
+# Trajetória desejada (azul, linha tracejada) - convertendo de cm para metros
+traj_desejada_m = np.array(trajetoria_cm) / 100.0
+lines_desejada = pv.lines_from_points(traj_desejada_m)
+plotter.add_mesh(lines_desejada, color='blue', line_width=3, style='wireframe', label='Desejada')
+
+# Trajetória calculada (vermelha, linha sólida) - convertendo de mm para metros
+traj_calculada_m = np.array([p for p in pontos_fk_mm if p is not None]) / 1000.0
+if traj_calculada_m.size > 0:
+    lines_calculada = pv.lines_from_points(traj_calculada_m)
+    plotter.add_mesh(lines_calculada, color='red', line_width=5, label='Calculada')
+
+# Configurações de visualização
+plotter.camera_position = 'iso'
+plotter.add_axes(interactive=False, line_width=2, color='black')
+plotter.show_grid(
+    location='outer',
+    color='gray',
+    xtitle='X (m)',
+    ytitle='Y (m)',
+    ztitle='Z (m)'
+)
+plotter.add_legend()
+
+# Salva imagem final
+output_filename = 'irb140_trajetoria_desejada_calculada.png'
+plotter.show(screenshot=output_filename)
+print(f"----------------------------------------------------------\n")
+print(f"Visualização 3D salva como '{output_filename}'")
